@@ -54,6 +54,8 @@ RUN rm -rf \
         usr/sbin/tzconfig \
         usr/share/bug \
         usr/share/doc \
+        usr/share/gcc-5 \
+        usr/share/gdb \
         usr/share/info \
         usr/share/libc-bin \
         usr/share/lintian \
@@ -61,8 +63,6 @@ RUN rm -rf \
  && mv -f sbin/ldconfig.real sbin/ldconfig \
  && ln -s /usr/share/zoneinfo/UTC etc/localtime \
  && find \
-#        etc/*.conf \
-#        etc/crontab \
         etc/mime.types \
         usr/lib/mime/mailcap \
         usr/share/readline/inputrc \
