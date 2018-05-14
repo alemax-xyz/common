@@ -1,11 +1,10 @@
-FROM library/ubuntu:xenial AS build
+FROM library/ubuntu:bionic AS build
 
 ENV LANG=C.UTF-8
 
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get update \
  && apt-get install -y \
-        python-software-properties \
         software-properties-common \
         apt-utils
 
@@ -14,10 +13,11 @@ WORKDIR /build
 RUN apt-get download \
         zlib1g \
         libtinfo5 \
-        libreadline6 \
+        libreadline7 \
         libncurses5 \
         libncursesw5 \
         libssl1.0.0 \
+        libssl1.1 \
         libstdc++6 \
         libc-bin \
         tzdata \
@@ -54,7 +54,7 @@ RUN rm -rf \
         usr/sbin/tzconfig \
         usr/share/bug \
         usr/share/doc \
-        usr/share/gcc-5 \
+        usr/share/gcc-* \
         usr/share/gdb \
         usr/share/info \
         usr/share/libc-bin \
