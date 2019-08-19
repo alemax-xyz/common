@@ -74,6 +74,8 @@ RUN rm -rf \
  && ln -s /usr/lib/mime/mailcap etc/mailcap \
  && cat usr/share/ca-certificates/mozilla/*.crt > etc/ssl/certs/ca-certificates.crt
 
+COPY init/ etc/init/
+
 WORKDIR /
 
 
