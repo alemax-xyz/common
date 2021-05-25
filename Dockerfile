@@ -1,4 +1,4 @@
-FROM library/ubuntu:bionic AS build
+FROM library/ubuntu:focal AS build
 
 ENV LANG=C.UTF-8
 
@@ -13,10 +13,9 @@ WORKDIR /build
 RUN apt-get download \
         zlib1g \
         libtinfo5 \
-        libreadline7 \
+        libreadline8 \
         libncurses5 \
         libncursesw5 \
-        libssl1.0.0 \
         libssl1.1 \
         libstdc++6 \
         libc-bin \
