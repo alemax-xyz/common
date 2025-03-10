@@ -1,33 +1,49 @@
-FROM library/ubuntu:focal AS build
+FROM library/debian:stable-slim AS build
 
 ENV LANG=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN export DEBIAN_FRONTEND=noninteractive \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y \
+        wget \
+        curl \
+        gnupg \
+        fasttrack-archive-keyring \
+        python3-software-properties \
         software-properties-common \
         apt-utils
+
+RUN ( true \
+     && echo "deb http://deb.debian.org/debian/ bullseye main contrib non-free" \
+     && echo "deb http://deb.debian.org/debian/ bullseye-updates main contrib non-free" \
+     && echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" \
+     && echo "deb http://deb.debian.org/debian/ bullseye-backports main contrib non-free" \
+ )  > /etc/apt/sources.list.d/bullseye.list \
+ && echo "deb https://fasttrack.debian.net/debian-fasttrack/ bullseye-fasttrack main contrib" > /etc/apt/sources.list.d/fasttrack.list \
+ && apt-get update
+
 
 RUN mkdir /build /rootfs
 WORKDIR /build
 RUN apt-get download \
-        zlib1g \
-        libtinfo5 \
+        libtinfo6 \
         libreadline8 \
         libncurses5 \
         libncursesw5 \
         libssl1.1 \
+        libssl3 \
         libstdc++6 \
         libc-bin \
         tzdata \
         ncurses-base \
         readline-common \
         ca-certificates \
-        mime-support
+        mailcap
 RUN find *.deb | xargs -I % dpkg-deb -x % /rootfs
 
 WORKDIR /rootfs
-RUN rm -rf \
+RUN mv -f usr/lib/mime/packages/mailcap usr/lib/mime/mailcap \
+ && rm -rf \
         etc/ca-certificates \
         etc/default \
         etc/ld.so.* \
@@ -53,14 +69,12 @@ RUN rm -rf \
         usr/sbin/tzconfig \
         usr/share/bug \
         usr/share/doc \
-        usr/share/gcc-* \
+        usr/share/gcc* \
         usr/share/gdb \
         usr/share/info \
         usr/share/libc-bin \
         usr/share/lintian \
         usr/share/man \
- && mv -f sbin/ldconfig.real sbin/ldconfig \
- && ln -s /usr/share/zoneinfo/UTC etc/localtime \
  && find \
         etc/mime.types \
         usr/lib/mime/mailcap \
