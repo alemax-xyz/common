@@ -13,9 +13,12 @@ It is built on top of the [clover/base](https://hub.docker.com/r/clover/base/).
 
 ### Enviroment variables
 
-| Name       | Default value | Description      |
-|------------|---------------|------------------|
-| `TIMEZONE` | `UTC`         | Desired timezone |
+| Name | Default value | Description
+| ---- | ------------- | -----------
+| `PUID` | `50` | Desired _UID_ of the process owner _*_
+| `PGID` | primary group id of the _UID_ user (`50`) | Desired _GID_ of the process owner _*_
+| `CRON` | _not set_ | Will start _cron_ inside the container if set to `1`
+| `TIMEZONE` | `UTC` | Desired container timezone
 
 ### Supported platforms
 
