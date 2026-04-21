@@ -10,6 +10,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 RUN mkdir /build /rootfs
 WORKDIR /build
 RUN apt-get download \
+        libfcgi0t64 \
         libtinfo6 \
         libreadline8t64 \
         libncurses6 \
@@ -20,19 +21,21 @@ RUN apt-get download \
         ncurses-base \
         readline-common \
         ca-certificates \
-        mailcap
+        mailcap \
+        fcgiwrap
 RUN find *.deb | xargs -I % dpkg-deb -x % /rootfs
 
 WORKDIR /rootfs
 RUN mv -f usr/lib/mime/packages/mailcap usr/lib/mime/mailcap \
  && rm -rf \
         etc/ca-certificates \
+        etc/init.d/ \
         etc/mailcap.order \
         etc/*/README \
         usr/bin \
         usr/lib/mime/packages \
         usr/lib/mime/debian-view \
-        usr/sbin \
+        usr/sbin/update-* \
         usr/share/bug \
         usr/share/doc \
         usr/share/gcc* \

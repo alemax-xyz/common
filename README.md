@@ -7,6 +7,7 @@ The image contains:
  * terminal information (`libtinfo`);
  * mime types (`media-types`);
  * ncurses (`libcurses`);
+ * fgciwrap (`fcgiwrap`);
  * extra libraries: `libreadline`, `libstdc++`;
 
 It is built on top of the [clover/base](https://hub.docker.com/r/clover/base/).
