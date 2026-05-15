@@ -1,38 +1,42 @@
 FROM library/debian:stable-slim AS build
 
-ENV LANG=C.UTF-8
+ENV LANG=C.UTF-8 \
+    SANDBOX_ROOT=/
 
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt-get update
+ && apt-get update \
+ && apt-get install -y wget openssl ca-certificates
 
-RUN mkdir /build /rootfs
+ADD https://github.com/alemax-xyz/apt-sandbox.git#main /usr/local/bin/
+
+RUN mkdir -p /build /rootfs
+
 WORKDIR /build
-RUN apt-get download \
-        libfcgi0t64 \
-        libtinfo6 \
-        libreadline8t64 \
-        libncurses6 \
-        libncursesw6 \
-        libstdc++6 \
-        media-types \
-        tzdata \
-        ncurses-base \
-        readline-common \
-        ca-certificates \
-        mailcap \
-        fcgiwrap
-RUN find *.deb | xargs -I % dpkg-deb -x % /rootfs
+
+COPY build/ .
+
+COPY --from=clover/base:latest /var/lib/packages/ var/lib/packages/
+
+RUN apt-sandbox --install --verstamp \
+        --apt-config APT::Install-Recommends=false \
+        --repository . \
+        --keyring . \
+        --installed var/lib/packages \
+        --obsolete packages.obsolete \
+        --required packages.required
 
 WORKDIR /rootfs
+
 RUN mv -f usr/lib/mime/packages/mailcap usr/lib/mime/mailcap \
  && rm -rf \
-        etc/ca-certificates \
+        etc/ca-certificates/* \
         etc/init.d/ \
         etc/mailcap.order \
         etc/*/README \
         usr/bin \
         usr/lib/mime/packages \
         usr/lib/mime/debian-view \
+        usr/lib/systemd \
         usr/sbin/update-* \
         usr/share/bug \
         usr/share/doc \
@@ -45,18 +49,28 @@ RUN mv -f usr/lib/mime/packages/mailcap usr/lib/mime/mailcap \
         etc/mime.types \
         usr/lib/mime/mailcap \
         usr/share/readline/inputrc \
+        usr/share/zoneinfo/leap-seconds.list \
     | xargs -I % sed -i -r \
         -e 's,^[[:space:]]*[#]+.*$,,g' \
         -e 's,[[:space:]]+, ,g' \
         -e '/^[[:space:]]*$/d' \
         % \
- && ln -s /usr/lib/mime/mailcap etc/mailcap \
- && cat usr/share/ca-certificates/mozilla/*.crt > etc/ssl/certs/ca-certificates.crt
+ && find \
+        usr/share/zoneinfo/iso3166.tab \
+        usr/share/zoneinfo/leapseconds \
+        usr/share/zoneinfo/tzdata.zi \
+        usr/share/zoneinfo/zone.tab \
+        usr/share/zoneinfo/zone1970.tab \
+        usr/share/zoneinfo/zonenow.tab \
+    | xargs -I % sed -i -r \
+        -e 's,^[[:space:]]*[#]+.*$,,g' \
+        -e '/^[[:space:]]*$/d' \
+        % \
+ && ln -s /usr/lib/mime/mailcap etc/mailcap
 
-COPY etc/ etc/
+COPY rootfs/ ./
 
 WORKDIR /
-
 
 FROM clover/base
 
