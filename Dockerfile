@@ -18,7 +18,9 @@ COPY build/ .
 COPY --from=clover/base:latest /var/lib/packages/ var/lib/packages/
 
 RUN apt-sandbox --install --verstamp \
-        --apt-config APT::Install-Recommends=false APT::Get::Upgrade==false \
+        --apt-config \
+            APT::Install-Recommends=false \
+            APT::Get::Upgrade==false \
         --repository . \
         --keyring . \
         --installed var/lib/packages \
@@ -45,27 +47,23 @@ RUN mv -f usr/lib/mime/packages/mailcap usr/lib/mime/mailcap \
         usr/share/info \
         usr/share/lintian \
         usr/share/man \
- && find \
+ && sed -i -E \
+        -e 's,^[[:space:]]*[#]+.*$,,g' \
+        -e 's,[[:space:]]+, ,g' \
+        -e '/^[[:space:]]*$/d' \
         etc/mime.types \
         usr/lib/mime/mailcap \
         usr/share/readline/inputrc \
         usr/share/zoneinfo/leap-seconds.list \
-    | xargs -I % sed -i -r \
+ && sed -i -E \
         -e 's,^[[:space:]]*[#]+.*$,,g' \
-        -e 's,[[:space:]]+, ,g' \
         -e '/^[[:space:]]*$/d' \
-        % \
- && find \
         usr/share/zoneinfo/iso3166.tab \
         usr/share/zoneinfo/leapseconds \
         usr/share/zoneinfo/tzdata.zi \
         usr/share/zoneinfo/zone.tab \
         usr/share/zoneinfo/zone1970.tab \
         usr/share/zoneinfo/zonenow.tab \
-    | xargs -I % sed -i -r \
-        -e 's,^[[:space:]]*[#]+.*$,,g' \
-        -e '/^[[:space:]]*$/d' \
-        % \
  && ln -s /usr/lib/mime/mailcap etc/mailcap
 
 COPY rootfs/ ./
